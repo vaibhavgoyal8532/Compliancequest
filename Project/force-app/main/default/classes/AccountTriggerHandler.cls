@@ -1,22 +1,31 @@
+
 public class AccountTriggerHandler {
     public static void accountTrigger(Map<Id, Account> newMap, Map<Id, Account> oldMap) {
+        Set<Id> accountIdsWithContacts = new Set<Id>();
         List<Contact> newContacts = new List<Contact>();
-   
-        for (Id acc : newMap.KeySet()) {
 
-                if (newMap.get(acc).Type != NULL && newMap.get(acc).VGActive__c && (Trigger.isInsert || (Trigger.isUpdate && !oldMap.get(acc).VGActive__c))) {
+        for (Contact existingContact : [SELECT AccountId FROM Contact WHERE AccountId IN :newMap.keySet()]) {
+            accountIdsWithContacts.add(existingContact.AccountId);
+        }
+		
+        
+        for (Id accountId : newMap.keySet()) {
+            Account newAccount = newMap.get(accountId);
+            Account oldAccount = oldMap != null ? oldMap.get(accountId) : null;
+
+            if (newAccount.Type != null && newAccount.VGActive__c && (Trigger.isInsert || (Trigger.isUpdate && (oldAccount == null || !oldAccount.VGActive__c)))) {
+                if (!accountIdsWithContacts.contains(accountId)) {
                     newContacts.add(new Contact(
-                        
-                        FirstName = newMap.get(acc).Name,
-                    
+                        FirstName = newAccount.Name,
                         LastName = 'Customer Representative',
-                        Phone = newMap.get(acc).Phone,
-                        Email = newMap.get(acc).Company_Email__c,
-                        AccountId = newMap.get(acc).Id
+                        Phone = newAccount.Phone,
+                        Email = newAccount.Company_Email__c,
+                        AccountId = accountId
                     ));
+                    accountIdsWithContacts.add(accountId); 
                 }
             }
-       
+        }
 
         if (!newContacts.isEmpty()) {
             insert newContacts;
