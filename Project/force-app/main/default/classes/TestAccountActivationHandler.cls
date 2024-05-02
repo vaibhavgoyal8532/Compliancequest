@@ -23,27 +23,7 @@ public class TestAccountActivationHandler {
             PermissionSetId = ps.Id
         );
         insert psa;
-        
-        
-        
-        System.runAs(u) {
-             Account acc1 = new Account(
-            Name = 'Test Account 1',
-            Type = 'Customer',
-            VGActive__c = true
-        
-        );
-        insert acc1;
-           Account acc2 = new Account(
-            Name = 'Test Account 2',
-            Type = 'Customer',
-            VGActive__c = false
-        
-        );
-        insert acc2;  
-            
-            
-        }
+ 
             
     }
 
@@ -51,7 +31,16 @@ public class TestAccountActivationHandler {
     public static void testAccountInsertion() {
         
         
-            Account acc = [SELECT Id,Phone,Company_Email__c FROM Account WHERE Name = 'Test Account 1' LIMIT 1];
+            User u = [select Id,Name from User where UserName='testpermissionsetuserAstreait@testorg.com'];
+        System.runAs(u) {
+           
+            Account acc = new Account(
+            Name = 'Test Account 1',
+            Type = 'Customer',
+            VGActive__c = true
+        
+        );
+        insert acc;
             List<Contact> createdContacts = [SELECT Id,Phone,Email,LastName FROM Contact WHERE AccountId = :acc.Id];
             System.assertEquals(1, createdContacts.size(), 'Default contact not created for active customer account');
             System.assertEquals(createdContacts[0].Phone, acc.Phone);
@@ -63,7 +52,15 @@ public class TestAccountActivationHandler {
      @isTest
     public static void testAccountInsertionFalied() {
        
+        User u = [select Id,Name from User where UserName='testpermissionsetuserAstreait@testorg.com'];
+        	 System.runAs(u) {
+                 Account acc = new Account(
+            Name = 'Test Account 2',
+            Type = 'Customer',
+            VGActive__c = false
         
+        );
+        insert acc;  
             Account acc = [SELECT Id,Phone,Company_Email__c FROM Account WHERE Name = 'Test Account 2' LIMIT 1];
             List<Contact> createdContacts = [SELECT Id,Phone,Email,LastName FROM Contact WHERE AccountId = :acc.Id];
             System.assertEquals(0, createdContacts.size(), 'No contact should be created for an inactive customer account');
@@ -74,8 +71,15 @@ public class TestAccountActivationHandler {
     @isTest
     public static void testAccountUpdate() {
         
+        User u = [select Id,Name from User where UserName='testpermissionsetuserAstreait@testorg.com'];
+        	 System.runAs(u) {
+                 Account acc = new Account(
+            Name = 'Test Account 2',
+            Type = 'Customer',
+            AGActive__c = false
         
-             Account acc = [SELECT Id,Phone,Company_Email__c,VGActive__c FROM Account WHERE Name = 'Test Account 2' LIMIT 1];
+        );
+        insert acc;     
             acc.VGActive__c = true;
             Test.startTest();
             update acc;
