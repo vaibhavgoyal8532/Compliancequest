@@ -61,7 +61,7 @@ public class TestAccountActivationHandler {
         
         );
         insert acc;  
-            Account acc = [SELECT Id,Phone,Company_Email__c FROM Account WHERE Name = 'Test Account 2' LIMIT 1];
+           
             List<Contact> createdContacts = [SELECT Id,Phone,Email,LastName FROM Contact WHERE AccountId = :acc.Id];
             System.assertEquals(0, createdContacts.size(), 'No contact should be created for an inactive customer account');
            
