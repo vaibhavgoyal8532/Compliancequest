@@ -13,7 +13,7 @@ public class AccountTriggerHandler {
             Account newAccount = newMap.get(accountId);
             Account oldAccount = oldMap != null ? oldMap.get(accountId) : null;
 
-            if (newAccount.Type != null && newAccount.VGActive__c && isCustomerAccountType(newAccount.Type) && (Trigger.isInsert || (Trigger.isUpdate && (oldAccount == null || !oldAccount.VGActive__c)))) {
+            if (newAccount.Type.contains('Customer') && newAccount.VGActive__c && isCustomerAccountType(newAccount.Type) && (Trigger.isInsert || (Trigger.isUpdate && (oldAccount == null || !oldAccount.VGActive__c)))) {
                 if (!accountIdsWithContacts.contains(accountId)) {
                     newContacts.add(new Contact(
                         FirstName = newAccount.Name,
